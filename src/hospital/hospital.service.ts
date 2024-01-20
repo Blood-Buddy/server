@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Hospital } from './schemas/hospital.schema';
 import * as mongoose from 'mongoose';
@@ -12,37 +12,45 @@ export class HospitalService {
     constructor(
         @InjectModel(Hospital.name)
         private hospitalModel: mongoose.Model<Hospital>,
-        private jwtService: JwtService
+        // private jwtService: JwtService
     ) {}
-    async create(hospital: RegisterHospitalDto) {
-        try {
-            const { name, email, address, phoneNumber, bloodStock, balance, password } = hospital;
-            const hashPassword = bcrypt.hashSync(password, 10);
-            const newHospital = await this.hospitalModel.create({
-                name,
-                email,
-                address,
-                phoneNumber,
-                bloodStock,
-                balance,
-                password: hashPassword
-            })
-            return newHospital
-        } catch (error) {
-            throw new UnauthorizedException("Registration Failed")
-        }
-    }
-    async login(loginDto: LoginHospitalDto) {
-        const { email, password } = loginDto
-        const hospital = await this.hospitalModel.findOne({ email })
+    // async create(hospital: RegisterHospitalDto) {
+    //     try {
+    //         const { name, email, address, phoneNumber, bloodStock, balance, password } = hospital;
+    //         const hashPassword = bcrypt.hashSync(password, 10);
+    //         const newHospital = await this.hospitalModel.create({
+    //             name,
+    //             email,
+    //             address,
+    //             phoneNumber,
+    //             bloodStock,
+    //             balance,
+    //             password: hashPassword
+    //         })
+    //         return newHospital
+    //     } catch (error) {
+    //         throw new UnauthorizedException("Registration Failed")
+    //     }
+    // }
+    // async login(loginDto: LoginHospitalDto) {
+    //     const { email, password } = loginDto
+    //     const hospital = await this.hospitalModel.findOne({ email })
+    //     if (!hospital) {
+    //         throw new UnauthorizedException('Invalid Email/Password')
+    //     }
+    //     const isPasswordValid = bcrypt.compareSync(password, hospital.password)
+    //     if (!isPasswordValid) {
+    //         throw new UnauthorizedException('Invalid Email/Password')
+    //     }
+    //     const token = this.jwtService.sign({ id: hospital._id, name: hospital.name })
+    //     return { token }
+    // }
+
+    async findHospital(id: string) {
+        const hospital = await this.hospitalModel.findById(id).select('-password')
         if (!hospital) {
-            throw new UnauthorizedException('Invalid Email/Password')
+            throw new NotFoundException("Hospital not Found")
         }
-        const isPasswordValid = bcrypt.compareSync(password, hospital.password)
-        if (!isPasswordValid) {
-            throw new UnauthorizedException('Invalid Email/Password')
-        }
-        const token = this.jwtService.sign({ id: hospital._id, name: hospital.name })
-        return { token }
+        return hospital
     }
 }

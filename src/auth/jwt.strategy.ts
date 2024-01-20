@@ -18,12 +18,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate(payload) {
-        const { id } = payload;
-        const user = await this.userModel.findById(id);
-        if(!user) {
-            throw new UnauthorizedException("Please login first to access this")
+    async validate(payload: any): Promise<User> {
+        try {
+            const { id } = payload;
+            const user = await this.userModel.findById(id);
+            if (!user) {
+                throw new UnauthorizedException("Please login first to access this");
+            }
+            return user;
+        } catch (error) {
+            console.error(`Error during JWT validation: ${error.message}`);
+            throw new UnauthorizedException("Please login first to access this");
         }
-        return user;
     }
+    
 }
