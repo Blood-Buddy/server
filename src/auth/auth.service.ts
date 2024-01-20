@@ -52,12 +52,30 @@ export class AuthService {
     return { token };
   }
 
-  async findById(id: string) {
-    const user = await this.userModel.findById(id).select("-password");
+  async getProfile(user: User) {
+    const users = await this.userModel.aggregate([
+      {
+        $match: {
+          _id: user._id,
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          phone: 1,
+          address: 1,
+          bloodType: 1,
+          _id: 0,
+          nik: 1,
+          points: 1,
+        }
+      }
+    ]);
     if (!user) {
       throw new UnauthorizedException("User not Found");
     }
-    return user;
+    return users;
   }
 
   async editProfile(userId: string, updatedUser: EditUserDto): Promise<User> {
