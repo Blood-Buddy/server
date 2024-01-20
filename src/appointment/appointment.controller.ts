@@ -1,27 +1,27 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { AppointmentService } from "./appointment.service";
 import { AuthGuard } from "@nestjs/passport";
 import { Appointment } from "./schemas/appointment.schema";
+import { createAppointmentDto } from "./dto/appointment.dto";
 
 @Controller("appointment")
 export class AppointmentController {
   constructor(private appointmentService: AppointmentService) {}
 
-  @Get(":id")
+  @Get()
   @UseGuards(AuthGuard())
-  async getAppointment(
-    @Param("id") 
-    id: string) {
-    return await this.appointmentService.getAppointment(id);
+  async getAppointment(@Req() req): Promise<Appointment[]> {
+    return await this.appointmentService.getAppointment(req.user);
   }
 
   @Post()
   @UseGuards(AuthGuard())
   async createAppointment(
-    @Body() 
-    appointmentData: Appointment
+    @Body()
+    appointmentData: createAppointmentDto,
+    @Req() req, 
   ): Promise<Appointment> {
-    return this.appointmentService.createAppointment(appointmentData);
+    return this.appointmentService.createAppointment(appointmentData, req.user);
   }
 
   @Patch(':id/update-status')

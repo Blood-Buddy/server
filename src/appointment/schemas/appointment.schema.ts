@@ -1,7 +1,7 @@
 // appointment.schema.ts
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, SchemaTypes } from 'mongoose';
+import { Document, SchemaTypes, Types } from 'mongoose';
 
 export type AppointmentDocument = Appointment & Document;
 
@@ -13,11 +13,11 @@ export class Appointment {
   @Prop({ required: true })
   session: number;
 
-  @Prop({ type: SchemaTypes.ObjectId, required: true })
-  hospitalId: string;
+  @Prop()
+  hospitalId: Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId, required: true })
-  userId: string;
+  @Prop()
+  userId: Types.ObjectId;
 
   @Prop({ default: 'pending' })
   status: string;
