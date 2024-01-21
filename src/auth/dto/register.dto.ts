@@ -1,4 +1,4 @@
-import { IsEmail, IsInt, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEmpty, IsInt, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class RegisterUserDto {
   @IsNotEmpty()
@@ -20,12 +20,16 @@ export class RegisterUserDto {
   @IsNotEmpty()
   @IsString()
   readonly address: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly city: string;
   
   @IsNotEmpty()
   @IsString()
   readonly bloodType: string;
 
-  @IsInt()
+  @IsEmpty()
   readonly points: number;
   
   @IsNotEmpty()

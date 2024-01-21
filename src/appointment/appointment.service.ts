@@ -4,6 +4,7 @@ import { Model, Types } from "mongoose";
 import { Appointment } from "./schemas/appointment.schema";
 import { User } from "src/auth/schemas/user.schema";
 import { createAppointmentDto } from "./dto/appointment.dto";
+import * as qrCode from "qrcode";
 
 @Injectable()
 export class AppointmentService {
@@ -15,16 +16,29 @@ export class AppointmentService {
   async createAppointment(
     appointment: createAppointmentDto,
     user: User
-  ): Promise<Appointment> {
-    const data = {
+  ): Promise<{ appointment: Appointment; qrCode: string }> {
+    const data: Partial<Appointment> = {
       ...appointment,
       hospitalId: new Types.ObjectId(appointment.hospitalId),
       userId: new Types.ObjectId(user._id),
     };
-    const res = this.appointmentModel.create(data);
-    return res;
+    const qrCodeString = await this.generateQRCode(data as Appointment);
+    const res = await this.appointmentModel.create({
+      ...data,
+      qrCode: qrCodeString,
+    });
+    return { appointment: res, qrCode: qrCodeString };
   }
 
+  private async generateQRCode(appointment: Appointment): Promise<string> {
+    const qrData = JSON.stringify({
+      appointment,
+    });
+
+    const qrCodeString = await qrCode.toDataURL(qrData);
+
+    return qrCodeString;
+  }
   async getAppointment(user: User): Promise<Appointment[]> {
     return await this.appointmentModel.aggregate([
       {

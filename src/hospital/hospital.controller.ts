@@ -1,34 +1,34 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { HospitalService } from './hospital.service';
 import { RegisterHospitalDto } from './dto/register.dto';
 import { Hospital } from './schemas/hospital.schema';
-import { LoginHospitalDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { EditHospitalDto } from './dto/editHospital.dto';
 
 @Controller('hospital')
 export class HospitalController {
   constructor(private hospitalService: HospitalService) {}
 
-  // @Post('register')
-  // async register(
-  //   @Body() 
-  //   registerDto: RegisterHospitalDto): Promise<Hospital> {
-  //   return await this.hospitalService.create(registerDto);
-  // }
-  // @Post("login")
-  // async login(
-  //   @Body()
-  //   loginDto: LoginHospitalDto,
-  // ): Promise<{ token: string }> {
-  //   return await this.hospitalService.login(loginDto);
-  // }
+  @Post('register')
+  async register(
+    @Body() 
+    registerDto: RegisterHospitalDto): Promise<Hospital> {
+    return await this.hospitalService.create(registerDto);
+  }
 
-  @Get(":id")
-  @UseGuards(AuthGuard())
-  async findHospital(
-    @Param("id")
-    id: string,
+  @Get()
+  @UseGuards(AuthGuard('jwt-hospital'))
+  async findHospital(@Req() req): Promise<Hospital[]> {
+    const hospital = this.hospitalService.findHospital(req.user);
+    return hospital
+  }
+
+  @Put(':id')
+  @UseGuards(AuthGuard('jwt-hospital'))
+  async editProfile(
+    @Param('id') id: string,
+    @Body() hospital: EditHospitalDto
   ): Promise<Hospital> {
-    return await this.hospitalService.findHospital(id);
+    return await this.hospitalService.editProfile(id, hospital);
   }
 }

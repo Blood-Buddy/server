@@ -7,13 +7,16 @@ import * as bcrypt from "bcryptjs";
 import { LoginDto } from "./dto/login.dto";
 import { JwtService } from "@nestjs/jwt";
 import { EditUserDto } from "./dto/editProfile.dto";
+import { HospitalService } from "src/hospital/hospital.service";
+import { LoginHospitalDto } from "src/hospital/dto/login.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<User>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private hospitalService: HospitalService
   ) {}
 
   async create(registerDto: RegisterUserDto) {
@@ -38,7 +41,7 @@ export class AuthService {
       throw new UnauthorizedException("Registration Failed");
     }
   }
-  async login(loginDto: LoginDto): Promise<{ token: string }> {
+  async login(loginDto: LoginDto): Promise<{ access_token: string }> {
     const { email, password } = loginDto;
     const user = await this.userModel.findOne({ email });
     if (!user) {
@@ -48,8 +51,23 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException("Invalid Email/Password");
     }
-    const token = this.jwtService.sign({ id: user._id, name: user.name });
-    return { token };
+    const access_token = this.jwtService.sign({ id: user._id, name: user.name, role: user.role });
+    return { access_token };
+  }
+
+  async hospitalLogin(loginHospital: LoginHospitalDto): Promise<{ access_token: string }> {
+    const { email, password } = loginHospital;
+    const hospital = await this.hospitalService.findHospitalEmail(email);
+    if (!hospital) {
+      throw new UnauthorizedException("Invalid Email/Password");
+    }
+    const isPasswordValid = bcrypt.compareSync(password, hospital.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException("Invalid Email/Password");
+    }
+    const access_token = this.jwtService.sign({ id: hospital._id, name: hospital.name, role: hospital.role });
+    return { access_token };
+
   }
 
   async getProfile(user: User) {

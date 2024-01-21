@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 
 export class createAppointmentDto {
     @IsDateString()
-    readonly date: string
+    readonly date: Date
 
     @IsNotEmpty()
     readonly session: number
