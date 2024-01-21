@@ -7,6 +7,9 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
+import { HospitalSchema } from 'src/hospital/schemas/hospital.schema';
+import { HospitalService } from 'src/hospital/hospital.service';
+import { JwtHospitalStrategy } from './jwtHospital.strategy';
 
 @Module({
   imports: [PassportModule.register({defaultStrategy: "jwt"}),
@@ -17,9 +20,10 @@ import { JwtStrategy } from './jwt.strategy';
             signOptions: { expiresIn: configService.get<string | number>('JWT_EXPIRES_IN') }
         })
     }),
-    MongooseModule.forFeature([{name: "User", schema: UserSchema}])],
+    MongooseModule.forFeature([{name: "User", schema: UserSchema}]),
+    MongooseModule.forFeature([{name: "Hospital", schema: HospitalSchema}])],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule]
+  providers: [AuthService, JwtStrategy, HospitalService, JwtHospitalStrategy],
+  exports: [JwtStrategy, PassportModule, JwtHospitalStrategy]
 })
 export class AuthModule {}

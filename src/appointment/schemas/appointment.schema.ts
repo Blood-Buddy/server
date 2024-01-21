@@ -21,6 +21,9 @@ export class Appointment {
 
   @Prop({ default: 'pending' })
   status: string;
+
+  @Prop()
+  qrCode: string
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

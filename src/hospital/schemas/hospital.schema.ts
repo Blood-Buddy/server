@@ -15,6 +15,9 @@ export class Hospital extends Document {
   @Prop({ type: [String], required: true })
   address: string[];
 
+  @Prop()
+  city: string
+
   @Prop({ required: true })
   phoneNumber: string;
 
@@ -40,6 +43,9 @@ export class Hospital extends Document {
 
   @Prop()
   password: string;
+
+  @Prop({type: String, default: "hospital"})
+  role: string
 }
 
 export const HospitalSchema = SchemaFactory.createForClass(Hospital);

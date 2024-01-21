@@ -20,7 +20,7 @@ export class AppointmentController {
     @Body()
     appointmentData: createAppointmentDto,
     @Req() req, 
-  ): Promise<Appointment> {
+  ): Promise<{appointment: Appointment; qrCode: string}> {
     return this.appointmentService.createAppointment(appointmentData, req.user);
   }
 
