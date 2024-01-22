@@ -5,6 +5,7 @@ import { Appointment } from "./schemas/appointment.schema";
 import { User } from "src/auth/schemas/user.schema";
 import { createAppointmentDto } from "./dto/appointment.dto";
 import * as qrCode from "qrcode";
+import { Hospital } from "src/hospital/schemas/hospital.schema";
 
 @Injectable()
 export class AppointmentService {
@@ -39,7 +40,7 @@ export class AppointmentService {
 
     return qrCodeString;
   }
-  async getAppointment(user: User): Promise<Appointment[]> {
+  async getAppointment(user: User | Hospital): Promise<Appointment[]> {
     return await this.appointmentModel.aggregate([
       {
         $match: {

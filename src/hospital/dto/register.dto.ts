@@ -37,6 +37,10 @@ export class RegisterHospitalDto {
   address: string[];
 
   @IsNotEmpty()
+  @IsString()
+  province: string;
+
+  @IsNotEmpty()
   phoneNumber: string;
 
   @ValidateNested()

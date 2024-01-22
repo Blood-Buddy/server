@@ -96,10 +96,10 @@ export class AuthService {
     return users;
   }
 
-  async editProfile(userId: string, updatedUser: EditUserDto): Promise<User> {
+  async editProfile(user: User, updatedUser: EditUserDto): Promise<User> {
     // Check if the requesting user is authorized to update the profile
     const profile = await this.userModel.findByIdAndUpdate(
-      userId,
+      user._id,
       { $set: updatedUser }, // Use $set to update only the specified fields
       { new: true, runValidators: true },
     );

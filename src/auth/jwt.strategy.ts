@@ -22,8 +22,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         try {
             const { id } = payload;
             const user = await this.userModel.findById(id);
-            if (!user) {
-                throw new UnauthorizedException("Please login first to access this");
+            if (!user || user.role !== "user") {
+                throw new UnauthorizedException("You are not Authorized");
             }
             return user;
         } catch (error) {

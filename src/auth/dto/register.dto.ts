@@ -1,5 +1,6 @@
 import { IsEmail, IsEmpty, IsInt, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
+
 export class RegisterUserDto {
   @IsNotEmpty()
   @IsString()
@@ -23,7 +24,7 @@ export class RegisterUserDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly city: string;
+  readonly province: string;
   
   @IsNotEmpty()
   @IsString()
