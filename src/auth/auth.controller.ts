@@ -50,14 +50,14 @@ export class AuthController {
   }
 
   @Get()
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard("jwt-user"))
   async findUser(@Req() req): Promise<User[]> {
     const users = this.authService.getProfile(req.user);
     return users;
   }
 
   @Put()
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard("jwt-user"))
   async editProfile(
     @Body() user: EditUserDto,
     @Req() req
