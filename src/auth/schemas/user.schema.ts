@@ -17,12 +17,14 @@ export class User extends Document {
   @Prop()
   address: string;
   @Prop()
+  province: string;
+  @Prop()
   bloodType: string;
   @Prop({type: Number, default: 0})
   points: number;
   @Prop()
   password: string;
-  @Prop({type: String, default: 'user'})
+  @Prop({type: String, default: "user"})
   role: string;
 }
 

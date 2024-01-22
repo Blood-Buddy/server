@@ -22,7 +22,7 @@ export class JwtHospitalStrategy extends PassportStrategy(Strategy, 'jwt-hospita
         try {
             const { id } = payload;
             const hospital = await this.hospitalModel.findById(id);
-            if (!hospital) {
+            if (!hospital || hospital.role !== "hospital") {
                 throw new UnauthorizedException("You are not Authorized");
             }
             return hospital;

@@ -56,12 +56,12 @@ export class AuthController {
     return users;
   }
 
-  @Put(":id")
+  @Put()
   @UseGuards(AuthGuard())
   async editProfile(
-    @Param("id") id: string,
-    @Body() user: EditUserDto
+    @Body() user: EditUserDto,
+    @Req() req
   ): Promise<User> {
-    return await this.authService.editProfile(id, user);
+    return await this.authService.editProfile(req.user, user);
   }
 }

@@ -39,6 +39,10 @@ export class EditHospitalDto {
 
   @IsOptional()
   @IsString()
+  province?: string;
+
+  @IsOptional()
+  @IsString()
   phoneNumber?: string;
 
   @IsOptional()

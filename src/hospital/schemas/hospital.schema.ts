@@ -16,7 +16,7 @@ export class Hospital extends Document {
   address: string[];
 
   @Prop()
-  city: string
+  province: string
 
   @Prop({ required: true })
   phoneNumber: string;

@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { HospitalSchema } from 'src/hospital/schemas/hospital.schema';
 import { HospitalService } from 'src/hospital/hospital.service';
 import { JwtHospitalStrategy } from './jwtHospital.strategy';
+import { CustomJwtAuthGuard } from 'src/guard/custom-auth.guard';
 
 @Module({
   imports: [PassportModule.register({defaultStrategy: "jwt"}),
