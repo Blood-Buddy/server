@@ -3,6 +3,8 @@ import { VoucherService } from './voucher.service';
 import { RegisterHospitalDto } from './dto/register.dto';
 import { Voucher } from './schemas/voucher.schema';
 import { AuthGuard } from '@nestjs/passport';
+import {Hospital} from "../hospital/schemas/hospital.schema";
+import {VoucherTransaction} from "./schemas/vouchertransaction.schema";
 
 @Controller('vouchers')
 export class VoucherController {
@@ -17,8 +19,12 @@ export class VoucherController {
 
 
   @Get('my-voucher')
-  async getMyVouchers(): Promise<Voucher[]> {
-    return []
+  @UseGuards(AuthGuard())
+  async getMyVouchers(@Req() req): Promise<VoucherTransaction[]> {
+    console.log(req.user)
+    const myVouchers = this.voucherService.getMyVouchers(req.user);
+    return myVouchers
   }
+
 
 }
