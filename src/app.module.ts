@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { HospitalModule } from './hospital/hospital.module';
 import { RequestModule } from './request/request.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import {VoucherModule} from "./voucher/voucher.module";
 @Module({
   imports: [ConfigModule.forRoot({
     envFilePath: ".env",
@@ -19,6 +20,7 @@ import { AppointmentModule } from './appointment/appointment.module';
   HospitalModule,
   RequestModule,
   AppointmentModule,
+  VoucherModule,
 ],
   controllers: [AppController],
   providers: [AppService],
