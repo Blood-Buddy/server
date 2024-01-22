@@ -78,14 +78,11 @@ export class AuthService {
         }
       },
       {
-        $project: {
-          name: 1,
-          email: 1,
-          phone: 1,
-          address: 1,
-          bloodType: 1,
-          nik: 1,
-          points: 1,
+        $lookup: {
+          from: "appointments",
+          localField: "_id",
+          foreignField: "userId",
+          as: "appointment",
         }
       }
     ]);
