@@ -1,5 +1,5 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
-import {Document} from 'mongoose';
+import {Document, Types} from 'mongoose';
 
 @Schema({
     timestamps: true,
@@ -7,10 +7,10 @@ import {Document} from 'mongoose';
 })
 export class VoucherTransaction extends Document {
     @Prop({required: true})
-    userId: string;
+    userId: Types.ObjectId;
 
     @Prop({required: true})
-    voucherId: string;
+    voucherId: Types.ObjectId;
 
     @Prop({required: true})
     code: string;
