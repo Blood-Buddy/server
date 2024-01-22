@@ -84,7 +84,6 @@ export class AuthService {
           phone: 1,
           address: 1,
           bloodType: 1,
-          _id: 0,
           nik: 1,
           points: 1,
         }

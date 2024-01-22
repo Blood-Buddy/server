@@ -44,8 +44,16 @@ export class AppointmentService {
     return await this.appointmentModel.aggregate([
       {
         $match: {
-          userId: user._id,
-          status: "pending"
+          $or:[
+            {
+              userId: user._id,
+              status: "pending"
+            },
+            {
+              hospitalId: user._id,
+              status: "pending"
+            }
+          ]
         },
       },
       {
@@ -76,7 +84,6 @@ export class AppointmentService {
       },
       {
         $project: {
-          _id: 0,
           session: 1,
           "User.name": 1,
           "Hospital.name": 1,
@@ -99,8 +106,16 @@ export class AppointmentService {
     return await this.appointmentModel.aggregate([
       {
         $match: {
-          userId: user._id,
-          status: {$in: ["completed", "canceled"]}
+          $or:[
+            {
+              userId: user._id,
+              status: {$in: ["completed", "canceled"]}
+            },
+            {
+              hospitalId: user._id,
+              status: {$in: ["completed", "canceled"]}
+            }
+          ]
         },
       },
       {
@@ -131,7 +146,6 @@ export class AppointmentService {
       },
       {
         $project: {
-          _id: 0,
           session: 1,
           "User.name": 1,
           "Hospital.name": 1,

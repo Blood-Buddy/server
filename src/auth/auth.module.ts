@@ -11,6 +11,7 @@ import { HospitalSchema } from 'src/hospital/schemas/hospital.schema';
 import { HospitalService } from 'src/hospital/hospital.service';
 import { JwtHospitalStrategy } from './jwtHospital.strategy';
 import { CustomJwtAuthGuard } from 'src/guard/custom-auth.guard';
+import { JwtUserStrategy } from './jwt-user.strategy';
 
 @Module({
   imports: [PassportModule.register({defaultStrategy: "jwt"}),
@@ -24,7 +25,7 @@ import { CustomJwtAuthGuard } from 'src/guard/custom-auth.guard';
     MongooseModule.forFeature([{name: "User", schema: UserSchema}]),
     MongooseModule.forFeature([{name: "Hospital", schema: HospitalSchema}])],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, HospitalService, JwtHospitalStrategy],
-  exports: [JwtStrategy, PassportModule, JwtHospitalStrategy]
+  providers: [AuthService, JwtStrategy, HospitalService, JwtHospitalStrategy, JwtUserStrategy],
+  exports: [JwtStrategy, PassportModule, JwtHospitalStrategy, JwtUserStrategy]
 })
 export class AuthModule {}

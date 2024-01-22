@@ -61,7 +61,6 @@ export class HospitalService {
           phoneNumber: 1,
           bloodStock: 1,
           balance: 1,
-          _id: 0,
         },
       },
     ]);
