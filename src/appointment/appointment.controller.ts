@@ -35,4 +35,10 @@ export class AppointmentController {
     }
     return this.appointmentService.updateAppointmentStatus(id, newStatus);
   }
+
+  @Get("/history")
+  @UseGuards(AuthGuard())
+  async historyAppointment(@Req() req): Promise<Appointment[]> {
+    return await this.appointmentService.historyAppointment(req.user);
+  }
 }

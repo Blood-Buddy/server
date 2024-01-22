@@ -44,6 +44,7 @@ export class AppointmentService {
       {
         $match: {
           userId: user._id,
+          status: "pending"
         },
       },
       {
@@ -91,5 +92,51 @@ export class AppointmentService {
     const appointment = await this.appointmentModel.findById(id);
     appointment.status = newStatus;
     return appointment.save();
+  }
+
+  async historyAppointment(user: User): Promise<Appointment[]> {
+    return await this.appointmentModel.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          status: {$in: ["completed", "canceled"]}
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "User",
+        },
+      },
+      {
+        $lookup: {
+          from: "hospitals",
+          localField: "hospitalId",
+          foreignField: "_id",
+          as: "Hospital",
+        },
+      },
+      {
+        $unwind: {
+          path: "$User",
+        },
+      },
+      {
+        $unwind: {
+          path: "$Hospital",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          session: 1,
+          "User.name": 1,
+          "Hospital.name": 1,
+          status: 1,
+        },
+      },
+    ]);
   }
 }
