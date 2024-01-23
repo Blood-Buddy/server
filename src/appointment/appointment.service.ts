@@ -178,7 +178,7 @@ export class AppointmentService {
         let appointment = await this.appointmentModel.aggregate([
             {
                 '$match': {
-                    '_id': new ObjectId(id)
+                    '_id': new ObjectId('65af6f91e5c9210ad465a756')
                 }
             }, {
                 '$lookup': {
@@ -201,6 +201,17 @@ export class AppointmentService {
             }, {
                 '$unwind': {
                     'path': '$user'
+                }
+            }, {
+                '$lookup': {
+                    'from': 'requests',
+                    'localField': 'requestId',
+                    'foreignField': '_id',
+                    'as': 'request'
+                }
+            }, {
+                '$unwind': {
+                    'path': '$request'
                 }
             }
         ]);
