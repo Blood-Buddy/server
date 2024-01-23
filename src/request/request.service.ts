@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request } from './schema/request.schema';
 import { Model, Types } from 'mongoose';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Injectable()
 export class RequestService {
     constructor(
         @InjectModel(Request.name)
         private requestModel: Model<Request>,
+        @InjectModel(User.name)
+        private userModel: Model<User>
     ) {}
 
     async getRequestById(id: string): Promise<Request[]> {
@@ -27,6 +30,15 @@ export class RequestService {
         ]);
     }
     async getRequests(): Promise<Request[]> {
-        return await this.requestModel.find();
+        return await this.requestModel.aggregate([
+            {
+                $lookup: {
+                    from: 'hospitals',
+                    localField: 'hospitalId',
+                    foreignField: '_id',
+                    as: 'hospital'
+                }
+            }
+        ]);
     }
 }
