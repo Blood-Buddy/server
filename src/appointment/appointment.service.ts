@@ -86,25 +86,6 @@ export class AppointmentService {
           as: "request",
         }
       },
-      // {
-      //   $unwind: {
-      //     path: "$User",
-      //   },
-      // },
-      // {
-      //   $unwind: {
-      //     path: "$Hospital",
-      //   },
-      // },
-      // {
-      //   $project: {
-      //     session: 1,
-      //     user: 1,
-      //     hospital: 1,
-      //     status: 1,
-      //     request: 1
-      //   },
-      // },
     ]);
   }
 

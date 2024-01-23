@@ -20,8 +20,8 @@ export class RequestService {
     ) {
     }
 
-    async getRequestById(id: string): Promise<Request[]> {
-        return await this.requestModel.aggregate([
+    async getRequestById(id: string): Promise<Request> {
+        const request = await this.requestModel.aggregate([
             {
                 $match: {
                     _id: new Types.ObjectId(id)
@@ -33,8 +33,40 @@ export class RequestService {
                     foreignField: '_id',
                     as: 'hospital'
                 }
+            },
+            {
+                $unwind: '$hospital'
+            },
+            {
+                $lookup: {
+                    from: 'appointments',
+                    localField: '_id',
+                    foreignField: 'requestId',
+                    as: 'appointment'
+                }
+            }, {
+                $unwind: `$appointment`
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'appointment.userId',
+                    foreignField: '_id',
+                    as: 'appointment.user'
+                }
+            },
+            {
+                $unwind: `$appointment.user`
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    request: { $first: '$$ROOT' },
+                    appointments: { $push: '$appointment' },
+                }
             }
         ]);
+        return request.length > 0 ? request[0].request : null
     }
 
     async getRequests(): Promise<Request[]> {
