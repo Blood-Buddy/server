@@ -6,21 +6,27 @@ import { User } from "src/auth/schemas/user.schema";
 import { createAppointmentDto } from "./dto/appointment.dto";
 import * as qrCode from "qrcode";
 import { Hospital } from "src/hospital/schemas/hospital.schema";
+import { Request } from "src/request/schema/request.schema";
 
 @Injectable()
 export class AppointmentService {
   constructor(
     @InjectModel(Appointment.name)
-    private appointmentModel: Model<Appointment>
+    private appointmentModel: Model<Appointment>,
+    @InjectModel(Request.name)
+    private requestModel: Model<Request>
   ) {}
 
   async createAppointment(
     appointment: createAppointmentDto,
     user: User
   ): Promise<{ appointment: Appointment; qrCode: string }> {
+    const requestId = new Types.ObjectId(appointment.requestId);
+    const request = await this.requestModel.findById(requestId);
     const data: Partial<Appointment> = {
       ...appointment,
-      hospitalId: new Types.ObjectId(appointment.hospitalId),
+      requestId,
+      hospitalId: request.hospitalId,
       userId: new Types.ObjectId(user._id),
     };
     const qrCodeString = await this.generateQRCode(data as Appointment);
@@ -61,7 +67,7 @@ export class AppointmentService {
           from: "users",
           localField: "userId",
           foreignField: "_id",
-          as: "User",
+          as: "user",
         },
       },
       {
@@ -69,27 +75,36 @@ export class AppointmentService {
           from: "hospitals",
           localField: "hospitalId",
           foreignField: "_id",
-          as: "Hospital",
+          as: "hospital",
         },
       },
       {
-        $unwind: {
-          path: "$User",
-        },
+        $lookup: {
+          from: "requests",
+          localField: "requestId",
+          foreignField: "_id",
+          as: "request",
+        }
       },
-      {
-        $unwind: {
-          path: "$Hospital",
-        },
-      },
-      {
-        $project: {
-          session: 1,
-          "User.name": 1,
-          "Hospital.name": 1,
-          status: 1,
-        },
-      },
+      // {
+      //   $unwind: {
+      //     path: "$User",
+      //   },
+      // },
+      // {
+      //   $unwind: {
+      //     path: "$Hospital",
+      //   },
+      // },
+      // {
+      //   $project: {
+      //     session: 1,
+      //     user: 1,
+      //     hospital: 1,
+      //     status: 1,
+      //     request: 1
+      //   },
+      // },
     ]);
   }
 
