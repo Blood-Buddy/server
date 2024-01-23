@@ -66,7 +66,7 @@ export class RequestService {
                 }
             }
         ]);
-        return request.length > 0 ? request[0].request : null
+        return request.length > 0 ? request[0].request : []
     }
 
     async getRequests(): Promise<Request[]> {

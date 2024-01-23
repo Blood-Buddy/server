@@ -42,7 +42,7 @@ export class AuthService {
       throw new UnauthorizedException("Registration Failed");
     }
   }
-  async login(loginDto: LoginDto): Promise<{ access_token: string }> {
+  async login(loginDto: LoginDto): Promise<{ access_token: string, role: string }> {
     const { email, password } = loginDto;
     const user = await this.userModel.findOne({ email });
     if (!user) {
@@ -53,10 +53,10 @@ export class AuthService {
       throw new UnauthorizedException("Invalid Email/Password");
     }
     const access_token = this.jwtService.sign({ id: user._id, name: user.name, role: user.role });
-    return { access_token };
+    return { access_token, role: user.role };
   }
 
-  async hospitalLogin(loginHospital: LoginHospitalDto): Promise<{ access_token: string }> {
+  async hospitalLogin(loginHospital: LoginHospitalDto): Promise<{ access_token: string, role: string }> {
     const { email, password } = loginHospital;
     const hospital = await this.hospitalService.findHospitalEmail(email);
     if (!hospital) {
@@ -67,7 +67,7 @@ export class AuthService {
       throw new UnauthorizedException("Invalid Email/Password");
     }
     const access_token = this.jwtService.sign({ id: hospital._id, name: hospital.name, role: hospital.role });
-    return { access_token };
+    return { access_token, role: hospital.role };
 
   }
 
