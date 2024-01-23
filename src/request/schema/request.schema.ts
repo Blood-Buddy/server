@@ -49,6 +49,12 @@ export class Request extends Document {
 
   @Prop({ type: Number, default: 0 })
   totalCollected: number;
+
+  @Prop({ required: true })
+  date: Date;
+
+  @Prop({ required: true })
+  session: [];
 }
 
 export const RequestSchema = SchemaFactory.createForClass(Request);

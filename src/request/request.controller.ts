@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Req, UseGuards} from '@nestjs/common';
 import { RequestService } from './request.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -16,5 +16,12 @@ export class RequestController {
     @UseGuards(AuthGuard())
     async getRequests() {
         return await this.requestService.getRequests();
+    }
+
+    @Post()
+
+    @UseGuards(AuthGuard('jwt-hospital'))
+    async postRequest(@Body() body, @Req() req) {
+        return await this.requestService.postRequest(body, req.user);
     }
 }

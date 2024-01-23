@@ -41,6 +41,9 @@ export class Hospital extends Document {
   @Prop({ type: Number, default: 0 })
   balance: number;
 
+  @Prop({ type: Number, default: 0 })
+  balanceLocked: number;
+
   @Prop()
   password: string;
 
