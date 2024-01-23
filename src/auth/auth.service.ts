@@ -21,7 +21,7 @@ export class AuthService {
 
   async create(registerDto: RegisterUserDto) {
     try {
-      const { name, nik, phone, address, email, bloodType, password } =
+      const { name, nik, phone, address, province, email, bloodType, password } =
         registerDto;
       const hashPassword = bcrypt.hashSync(password, 10);
       const user = await this.userModel.create({
@@ -29,6 +29,7 @@ export class AuthService {
         nik,
         phone,
         address,
+        province,
         email,
         bloodType,
         password: hashPassword,
