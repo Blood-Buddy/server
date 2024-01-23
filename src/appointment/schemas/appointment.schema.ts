@@ -9,6 +9,9 @@ export type AppointmentDocument = Appointment & Document;
 
 @Schema({ timestamps: true })
 export class Appointment {
+  @Prop()
+  _id: Types.ObjectId
+
   @Prop({ type: Date, required: true })
   date: Date;
 
