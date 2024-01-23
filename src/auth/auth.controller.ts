@@ -34,7 +34,7 @@ export class AuthController {
   async login(
     @Body()
     loginData: LoginDto | LoginHospitalDto
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string, role: string }> {
     try {
       return await this.authService.login(loginData as LoginDto);
     } catch (error) {
