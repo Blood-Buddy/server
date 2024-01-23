@@ -182,6 +182,17 @@ export class AppointmentService {
                 '$unwind': {
                     'path': '$user'
                 }
+            }, {
+                '$lookup': {
+                    'from': 'requests',
+                    'localField': 'requestId',
+                    'foreignField': '_id',
+                    'as': 'request'
+                }
+            }, {
+                '$unwind': {
+                    'path': '$request'
+                }
             }
         ]);
         return appointment.length > 0 ? appointment[0] : []
