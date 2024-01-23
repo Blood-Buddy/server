@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="46b4df5f-ca8f-4e52-af92-e55f42f1a85e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/appointment/appointment.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/appointment/appointment.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/appointment/appointment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/appointment/appointment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/request/request.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/request/request.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +32,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "dev",
+    "git-widget-placeholder": "appointment-hospital",
     "last_opened_file_path": "/Users/macbookpro/Documents/hacktiv8/javascript/tugas/phase 3/week 3/day 1/final-project/server/src/voucher/schemas",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
