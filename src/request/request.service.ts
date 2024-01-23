@@ -86,8 +86,6 @@ export class RequestService {
         hospitalModel.balanceLocked = hospitalModel.balanceLocked + price;
         hospitalModel.save()
 
-
-
         // create table requestnya
         let requestBlood = await this.requestModel.create({
             title: body.title,

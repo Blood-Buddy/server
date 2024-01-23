@@ -41,4 +41,12 @@ export class AppointmentController {
   async historyAppointment(@Req() req): Promise<Appointment[]> {
     return await this.appointmentService.historyAppointment(req.user);
   }
+
+
+
+  @Get(":id")
+  @UseGuards(AuthGuard('jwt-hospital'))
+  async getAppointmentById(@Param("id") id: string) {
+    return await this.appointmentService.getAppointmentById(id);
+  }
 }

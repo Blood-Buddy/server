@@ -7,6 +7,7 @@ import { createAppointmentDto } from "./dto/appointment.dto";
 import * as qrCode from "qrcode";
 import { Hospital } from "src/hospital/schemas/hospital.schema";
 import { Request } from "src/request/schema/request.schema";
+import ObjectId = Types.ObjectId;
 
 @Injectable()
 export class AppointmentService {
@@ -168,6 +169,38 @@ export class AppointmentService {
           status: 1,
         },
       },
+    ]);
+  }
+
+  async getAppointmentById(id) {
+    return await this.appointmentModel.aggregate([
+      {
+        '$match': {
+          '_id': new ObjectId(id)
+        }
+      }, {
+        '$lookup': {
+          'from': 'hospitals',
+          'localField': 'hospitalId',
+          'foreignField': '_id',
+          'as': 'hospital'
+        }
+      }, {
+        '$unwind': {
+          'path': '$hospital'
+        }
+      }, {
+        '$lookup': {
+          'from': 'users',
+          'localField': 'userId',
+          'foreignField': '_id',
+          'as': 'user'
+        }
+      }, {
+        '$unwind': {
+          'path': '$user'
+        }
+      }
     ]);
   }
 }
