@@ -9,11 +9,6 @@ export class createAppointmentDto {
     readonly session: number
 
     @IsNotEmpty()
-    readonly hospitalId: Types.ObjectId
+    readonly requestId: Types.ObjectId
 
-    @IsEmpty()
-    readonly userId: Types.ObjectId
-
-    @IsEmpty()
-    readonly status: string
 }

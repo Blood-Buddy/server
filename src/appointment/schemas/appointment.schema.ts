@@ -1,7 +1,9 @@
 // appointment.schema.ts
 
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, SchemaTypes, Types } from 'mongoose';
+import { Injectable } from '@nestjs/common';
+import { InjectModel, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Model, SchemaTypes, Types } from 'mongoose';
+import { Request } from 'src/request/schema/request.schema';
 
 export type AppointmentDocument = Appointment & Document;
 
@@ -17,6 +19,9 @@ export class Appointment {
   hospitalId: Types.ObjectId;
 
   @Prop()
+  requestId: Types.ObjectId;
+
+  @Prop()
   userId: Types.ObjectId;
 
   @Prop({ default: 'pending' })
@@ -27,3 +32,4 @@ export class Appointment {
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
+

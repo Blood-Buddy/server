@@ -1,5 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Injectable } from '@nestjs/common';
+import { InjectModel, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Document, Model, Types } from 'mongoose';
 
 @Schema({
   timestamps: true,
@@ -51,3 +52,4 @@ export class Request extends Document {
 }
 
 export const RequestSchema = SchemaFactory.createForClass(Request);
+
