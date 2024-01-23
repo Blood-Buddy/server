@@ -145,7 +145,6 @@ export class RequestService {
             "description": "Invoice Deposit Saldo",
             "currency": "IDR",
             "reminderTime": 1,
-            "successRedirectUrl": "https://phase2-gema-ip.web.app/balance-histories",
         }
 
         data = await xenditInvoiceClient.createInvoice({
@@ -161,6 +160,11 @@ export class RequestService {
     }
 
     async createDepositInvoice(body) {
+
+        if(ObjectId.isValid(body.external_id) === false) {
+            return "Invalid Hospital ID";
+        }
+
         let balanceHospital = await this.hospitalModel.findOneAndUpdate({
             _id: new ObjectId(body.external_id)
         },{
