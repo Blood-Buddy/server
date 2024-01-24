@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import {Body, Controller, Get, NotFoundException, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
 import { AppointmentService } from "./appointment.service";
 import { AuthGuard } from "@nestjs/passport";
 import { Appointment } from "./schemas/appointment.schema";
@@ -74,4 +74,17 @@ export class AppointmentController {
     return await this.appointmentService.getAppointmentById(id);
   }
 
+
+
+  @Put('/status/:id')
+  @UseGuards(AuthGuard("jwt-hospital"))
+  async updateAppointmentStatusHospital(
+      @Param('id') id: string,
+      @Body('status') newStatus: string,
+  ): Promise<Appointment> {
+    if (!newStatus) {
+      throw new NotFoundException('New status is required');
+    }
+    return this.appointmentService.updateAppointmentStatusHospital(id, newStatus);
+  }
 }
