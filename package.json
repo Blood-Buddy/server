@@ -27,6 +27,7 @@
     "@nestjs/mongoose": "^10.0.2",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/schedule": "^4.0.0",
     "@nestjs/swagger": "^7.2.0",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
@@ -37,8 +38,8 @@
     "passport-local": "^1.0.0",
     "qrcode": "^1.5.3",
     "reflect-metadata": "^0.1.13",
-    "xendit-node": "^4.1.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "xendit-node": "^4.1.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

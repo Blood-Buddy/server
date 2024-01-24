@@ -8,6 +8,12 @@ import { createAppointmentDto } from "./dto/appointment.dto";
 export class AppointmentController {
   constructor(private appointmentService: AppointmentService) {}
 
+  @Get("/cron")
+  // @UseGuards(AuthGuard())
+  async getCron() {
+    return await this.appointmentService.updateAppointmentStatusCron()
+  }
+
   @Get()
   @UseGuards(AuthGuard())
   async getAppointment(@Req() req): Promise<Appointment[]> {
@@ -24,16 +30,13 @@ export class AppointmentController {
     return this.appointmentService.createAppointment(appointmentData, req.user);
   }
 
-  @Patch(':id/completed')
+  @Get(':id/completed')
   @UseGuards(AuthGuard("jwt-hospital"))
   async updateAppointmentStatus(
     @Param('id') id: string,
-    @Body('status') newStatus: string,
+    // @Body('status') newStatus: string,
   ): Promise<Appointment> {
-    if (!newStatus) {
-      throw new NotFoundException('New status is required');
-    }
-    return this.appointmentService.updateAppointmentStatus(id, newStatus);
+    return this.appointmentService.updateAppointmentStatusCompleted(id);
   }
 
   @Get("/history")
@@ -49,16 +52,14 @@ export class AppointmentController {
     return hospital
   }
 
-  @Patch(':id/cancel')
+  @Get(':id/cancel')
   @UseGuards(AuthGuard())
   async cancelAppointment(
     @Param('id') id: string,
-    @Body('newStatus') newStatus: string,
   ) {
     try {
-      const updatedAppointment = await this.appointmentService.updateAppointmentStatus(
+      const updatedAppointment = await this.appointmentService.updateAppointmentStatusCancelled(
         id,
-        newStatus,
       );
 
       return { success: true, appointment: updatedAppointment };
@@ -80,11 +81,12 @@ export class AppointmentController {
   @UseGuards(AuthGuard("jwt-hospital"))
   async updateAppointmentStatusHospital(
       @Param('id') id: string,
-      @Body('status') newStatus: string,
+      @Body('status') status: string,
   ) {
-    if (!newStatus) {
+    if (!status) {
       throw new NotFoundException('New status is required');
     }
-    return this.appointmentService.updateAppointmentStatusHospital(id, newStatus);
+    return this.appointmentService.updateAppointmentStatusHospital(id, status);
   }
+
 }
