@@ -243,12 +243,6 @@ export class AppointmentService {
         id: string,
         newStatus: string
     ) {
-
-
-        const client = new MongoClient(process.env.DB_URI, {
-            dbName: "BloodBuddy"
-        });
-
         const session = await this.connection.startSession();
         // const session = client.startSession();
         let isError = false
@@ -260,36 +254,40 @@ export class AppointmentService {
             appointment.status = newStatus;
             await appointment.save({session})
 
-            // rilis point ke tabel user
-            let user = await this.userModel.findOne({_id: appointment.userId});
-            user.points = user.points + 50;
-            await user.save({session});
+            if (newStatus === 'completed') {
+                // rilis point ke tabel user
+                let user = await this.userModel.findOne({_id: appointment.userId});
+                user.points = user.points + 50;
+                await user.save({session});
 
-            // kurangin balance & balanceLocked di tabel hospital
-            let hospital: any = await this.hospitalModel.findOne({_id: appointment.hospitalId});
-            hospital.balance = hospital.balance - 50000;
-            hospital.balanceLocked = hospital.balanceLocked - 50000;
+                // kurangin balance & balanceLocked di tabel hospital
+                let hospital: any = await this.hospitalModel.findOne({_id: appointment.hospitalId});
+                hospital.balance = hospital.balance - 50000;
+                hospital.balanceLocked = hospital.balanceLocked - 50000;
 
-            // tambah stok di tabel hospital
-            hospital.bloodStock[user.bloodType] = hospital.bloodStock[user.bloodType] + 1;
-            await hospital.save({session});
+                // tambah stok di tabel hospital
+                hospital.bloodStock[user.bloodType] = hospital.bloodStock[user.bloodType] + 1;
+                await hospital.save({session});
 
-            // update collected blood di tabel request
-            let request: any = await this.requestModel.findOne({_id: appointment.requestId});
-            request.bloodType[user.bloodType].collected = request.bloodType[user.bloodType].collected + 1;
-            request.totalCollected = request.totalCollected + 1;
-            await request.save({session});
+                // update collected blood di tabel request
+                let request: any = await this.requestModel.findOne({_id: appointment.requestId});
+                request.bloodType[user.bloodType].collected = request.bloodType[user.bloodType].collected + 1;
+                request.totalCollected = request.totalCollected + 1;
+                await request.save({session});
+            } else {
+
+            }
+
 
             await session.commitTransaction();
         } catch (error) {
             await session.abortTransaction();
-            console.log(error)
 
             isError = true
         } finally {
             await session.endSession();
 
-            if(isError){
+            if (isError) {
                 return 'error'
             }
             return 'success'
