@@ -51,7 +51,7 @@ export class AuthController {
 
   @Get()
   @UseGuards(AuthGuard("jwt-user"))
-  async findUser(@Req() req): Promise<User[]> {
+  async findUser(@Req() req) {
     const users = this.authService.getProfile(req.user);
     return users;
   }
