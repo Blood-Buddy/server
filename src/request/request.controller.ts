@@ -27,11 +27,15 @@ export class RequestController {
     return await this.requestService.getRequestHospitals(req.user);
   }
 
-  @Get(":id")
-  @UseGuards(AuthGuard())
-  async getRequestById(@Param("id") id: string) {
-    return await this.requestService.getRequestById(id);
-  }
+    @Get('/cron')
+    async createCron() {
+        return await this.requestService.createCron();
+    }
+    @Get(':id')
+    @UseGuards(AuthGuard())
+    async getRequestById(@Param('id') id: string) {
+        return await this.requestService.getRequestById(id);
+    }
 
 
     @Post()
