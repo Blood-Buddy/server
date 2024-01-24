@@ -8,7 +8,6 @@ import { HospitalModule } from './hospital/hospital.module';
 import { RequestModule } from './request/request.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import {VoucherModule} from "./voucher/voucher.module";
-import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [ConfigModule.forRoot({
     envFilePath: ".env",
@@ -22,7 +21,6 @@ import { ScheduleModule } from '@nestjs/schedule';
   RequestModule,
   AppointmentModule,
   VoucherModule,
-  ScheduleModule.forRoot()
 ],
   controllers: [AppController],
   providers: [AppService],
