@@ -18,7 +18,7 @@ export class HospitalController {
 
   @Get()
   @UseGuards(AuthGuard('jwt-hospital'))
-  async findHospital(@Req() req): Promise<Hospital[]> {
+  async findHospital(@Req() req) {
     const hospital = this.hospitalService.findHospital(req.user);
     return hospital
   }

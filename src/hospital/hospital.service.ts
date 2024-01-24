@@ -46,24 +46,7 @@ export class HospitalService {
   }
 
   async findHospital(hospital: Hospital) {
-    const data = await this.hospitalModel.aggregate([
-      {
-        $match: {
-          _id: hospital._id,
-        },
-      },
-      {
-        $project: {
-          name: 1,
-          email: 1,
-          address: 1,
-          province: 1,
-          phoneNumber: 1,
-          bloodStock: 1,
-          balance: 1,
-        },
-      },
-    ]);
+    const data = await this.hospitalModel.findById(hospital._id).select("-password");
     if (!data) {
       throw new NotFoundException("Hospital not Found");
     }
