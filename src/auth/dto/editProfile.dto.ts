@@ -19,7 +19,7 @@ export class EditUserDto {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  readonly phone?: string;
+  readonly phoneNumber?: string;
   
   @IsOptional()
   @IsNotEmpty()

@@ -13,7 +13,7 @@ export class User extends Document {
   @Prop({ unique: [true, 'Email is already in use'] })
   email: string;
   @Prop()
-  phone: string;
+  phoneNumber: string;
   @Prop()
   address: string;
   @Prop()
