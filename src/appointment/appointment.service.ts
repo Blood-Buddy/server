@@ -1,6 +1,6 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
-import {InjectModel} from "@nestjs/mongoose";
-import {Model, Types} from "mongoose";
+import {InjectConnection, InjectModel, MongooseModule} from "@nestjs/mongoose";
+import {Connection, Model, Types} from "mongoose";
 import {Appointment} from "./schemas/appointment.schema";
 import {User} from "src/auth/schemas/user.schema";
 import {createAppointmentDto} from "./dto/appointment.dto";
@@ -8,6 +8,7 @@ import * as qrCode from "qrcode";
 import {Hospital} from "src/hospital/schemas/hospital.schema";
 import {Request} from "src/request/schema/request.schema";
 import ObjectId = Types.ObjectId;
+const { MongoClient } = require('mongodb');
 
 @Injectable()
 export class AppointmentService {
@@ -19,7 +20,8 @@ export class AppointmentService {
         @InjectModel(User.name)
         private userModel: Model<User>,
         @InjectModel(Hospital.name)
-        private hospitalModel: Model<Hospital>
+        private hospitalModel: Model<Hospital>,
+        @InjectConnection() private connection: Connection
     ) {
     }
 
@@ -230,34 +232,59 @@ export class AppointmentService {
     async updateAppointmentStatusHospital(
         id: string,
         newStatus: string
-    ): Promise<Appointment> {
+    ) {
 
-        // update appointment status
-        const appointment = await this.appointmentModel.findOne({_id: new ObjectId(id)});
-        appointment.status = newStatus;
-        await appointment.save()
 
-        // rilis point ke tabel user
-        let user = await this.userModel.findOne({_id: appointment.userId});
-        user.points = user.points + 50;
-        await user.save()
+        const client = new MongoClient(process.env.DB_URI, {
+            dbName: "BloodBuddy"
+        });
 
-        // kurangin balance & balanceLocked di tabel hospital
-        let hospital: any = await this.hospitalModel.findOne({_id: appointment.hospitalId});
-        hospital.balance = hospital.balance - 50000;
-        hospital.balanceLocked = hospital.balanceLocked - 50000;
+        const session = await this.connection.startSession();
+        // const session = client.startSession();
+        let isError = false
+        try {
+            session.startTransaction();
 
-        // tambah stok di tabel hospital
-        hospital.bloodStock[user.bloodType] = hospital.bloodStock[user.bloodType] + 1;
-        await hospital.save();
+            // update appointment status
+            const appointment = await this.appointmentModel.findOne({_id: new ObjectId(id)});
+            appointment.status = newStatus;
+            await appointment.save({session})
 
-        // update collected blood di tabel request
-        let request: any = await this.requestModel.findOne({_id: appointment.requestId});
-        request.bloodType[user.bloodType].collected = request.bloodType[user.bloodType].collected + 1;
-        request.totalCollected = request.totalCollected + 1;
-        await request.save();
+            // rilis point ke tabel user
+            let user = await this.userModel.findOne({_id: appointment.userId});
+            user.points = user.points + 50;
+            await user.save({session});
 
-        return appointment
+            // kurangin balance & balanceLocked di tabel hospital
+            let hospital: any = await this.hospitalModel.findOne({_id: appointment.hospitalId});
+            hospital.balance = hospital.balance - 50000;
+            hospital.balanceLocked = hospital.balanceLocked - 50000;
+
+            // tambah stok di tabel hospital
+            hospital.bloodStock[user.bloodType] = hospital.bloodStock[user.bloodType] + 1;
+            await hospital.save({session});
+
+            // update collected blood di tabel request
+            let request: any = await this.requestModel.findOne({_id: appointment.requestId});
+            request.bloodType[user.bloodType].collected = request.bloodType[user.bloodType].collected + 1;
+            request.totalCollected = request.totalCollected + 1;
+            await request.save({session});
+
+            await session.commitTransaction();
+        } catch (error) {
+            await session.abortTransaction();
+            console.log(error)
+
+            isError = true
+        } finally {
+            await session.endSession();
+
+            if(isError){
+                return 'error'
+            }
+            return 'success'
+        }
+
     }
 
 }

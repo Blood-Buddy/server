@@ -81,7 +81,7 @@ export class AppointmentController {
   async updateAppointmentStatusHospital(
       @Param('id') id: string,
       @Body('status') newStatus: string,
-  ): Promise<Appointment> {
+  ) {
     if (!newStatus) {
       throw new NotFoundException('New status is required');
     }
