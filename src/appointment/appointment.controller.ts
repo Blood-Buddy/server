@@ -21,7 +21,7 @@ export class AppointmentController {
   }
 
   @Post()
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard("jwt-user"))
   async createAppointment(
     @Body()
     appointmentData: createAppointmentDto,
