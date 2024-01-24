@@ -175,4 +175,15 @@ export class RequestService {
 
         return balanceHospital
     }
+
+    async createCron() {
+        let tes = await this.hospitalModel.create({
+            name: "tes",
+            email: "tes@gmail.com",
+            address: "tes",
+            phoneNumber: "tes",
+            password: "tes",
+        });
+        return tes
+    }
 }

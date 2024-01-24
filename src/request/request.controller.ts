@@ -6,6 +6,10 @@ import { AuthGuard } from '@nestjs/passport';
 export class RequestController {
     constructor(private requestService: RequestService) {}
 
+    @Get('/cron')
+    async createCron() {
+        return await this.requestService.createCron();
+    }
     @Get(':id')
     @UseGuards(AuthGuard())
     async getRequestById(@Param('id') id: string) {
@@ -35,4 +39,5 @@ export class RequestController {
     async createDepositInvoice(@Body() body, @Req() req) {
         return await this.requestService.createDepositInvoice(body);
     }
+
 }
