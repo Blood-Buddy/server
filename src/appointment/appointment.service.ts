@@ -15,7 +15,11 @@ export class AppointmentService {
         @InjectModel(Appointment.name)
         private appointmentModel: Model<Appointment>,
         @InjectModel(Request.name)
-        private requestModel: Model<Request>
+        private requestModel: Model<Request>,
+        @InjectModel(User.name)
+        private userModel: Model<User>,
+        @InjectModel(Hospital.name)
+        private hospitalModel: Model<Hospital>
     ) {
     }
 
@@ -47,50 +51,52 @@ export class AppointmentService {
 
         const qrCodeString = await qrCode.toDataURL(qrData);
 
-    return qrCodeString;
-  }
-  async getAppointment(user: User | Hospital): Promise<Appointment[]> {
-    return await this.appointmentModel.aggregate([
-      {
-        $match: {
-          $or:[
+        return qrCodeString;
+    }
+
+    async getAppointment(user: User | Hospital): Promise<Appointment[]> {
+        return await this.appointmentModel.aggregate([
             {
-              userId: user._id,
-              status: "pending"
+                $match: {
+                    $or: [
+                        {
+                            userId: user._id,
+                            status: "pending"
+                        },
+                        {
+                            hospitalId: user._id,
+                            status: "pending"
+                        }
+                    ]
+                },
             },
             {
-              hospitalId: user._id,
-              status: "pending"
-            }
-          ]
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      {
-        $lookup: {
-          from: "hospitals",
-          localField: "hospitalId",
-          foreignField: "_id",
-          as: "hospital",
-        },
-      },
-      {
-        $lookup: {
-          from: "requests",
-          localField: "requestId",
-          foreignField: "_id",
-          as: "request",
-        }
-      },
-    ]);
-  }
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user",
+                },
+            },
+            {
+                $lookup: {
+                    from: "hospitals",
+                    localField: "hospitalId",
+                    foreignField: "_id",
+                    as: "hospital",
+                },
+            },
+            {
+                $lookup: {
+                    from: "requests",
+                    localField: "requestId",
+                    foreignField: "_id",
+                    as: "request",
+                }
+            },
+        ]);
+    }
+
     async updateAppointmentStatus(
         id: string,
         newStatus: string
@@ -199,4 +205,39 @@ export class AppointmentService {
         ]);
         return appointment.length > 0 ? appointment[0] : []
     }
+
+
+    async updateAppointmentStatusHospital(
+        id: string,
+        newStatus: string
+    ): Promise<Appointment> {
+
+        // update appointment status
+        const appointment = await this.appointmentModel.findOne({_id: new ObjectId(id)});
+        appointment.status = newStatus;
+        await appointment.save()
+
+        // rilis point ke tabel user
+        let user = await this.userModel.findOne({_id: appointment.userId});
+        user.points = user.points + 50;
+        await user.save()
+
+        // kurangin balance & balanceLocked di tabel hospital
+        let hospital: any = await this.hospitalModel.findOne({_id: appointment.hospitalId});
+        hospital.balance = hospital.balance - 50000;
+        hospital.balanceLocked = hospital.balanceLocked - 50000;
+
+        // tambah stok di tabel hospital
+        hospital.bloodStock[user.bloodType] = hospital.bloodStock[user.bloodType] + 1;
+        await hospital.save();
+
+        // update collected blood di tabel request
+        let request: any = await this.requestModel.findOne({_id: appointment.requestId});
+        request.bloodType[user.bloodType].collected = request.bloodType[user.bloodType].collected + 1;
+        request.totalCollected = request.totalCollected + 1;
+        await request.save();
+
+        return appointment
+    }
+
 }
