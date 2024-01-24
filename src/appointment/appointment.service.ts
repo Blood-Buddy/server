@@ -8,7 +8,8 @@ import * as qrCode from "qrcode";
 import {Hospital} from "src/hospital/schemas/hospital.schema";
 import {Request} from "src/request/schema/request.schema";
 import ObjectId = Types.ObjectId;
-const { MongoClient } = require('mongodb');
+
+const {MongoClient} = require('mongodb');
 
 @Injectable()
 export class AppointmentService {
@@ -53,50 +54,52 @@ export class AppointmentService {
 
         const qrCodeString = await qrCode.toDataURL(qrData);
 
-    return qrCodeString;
-  }
-  async getAppointment(user: User | Hospital): Promise<Appointment[]> {
-    return await this.appointmentModel.aggregate([
-      {
-        $match: {
-          $or:[
+        return qrCodeString;
+    }
+
+    async getAppointment(user: User | Hospital): Promise<Appointment[]> {
+        return await this.appointmentModel.aggregate([
             {
-              userId: user._id,
-              status: "pending"
+                $match: {
+                    $or: [
+                        {
+                            userId: user._id,
+                            status: "pending"
+                        },
+                        {
+                            hospitalId: user._id,
+                            status: "pending"
+                        }
+                    ]
+                },
             },
             {
-              hospitalId: user._id,
-              status: "pending"
-            }
-          ]
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      {
-        $lookup: {
-          from: "hospitals",
-          localField: "hospitalId",
-          foreignField: "_id",
-          as: "hospital",
-        },
-      },
-      {
-        $lookup: {
-          from: "requests",
-          localField: "requestId",
-          foreignField: "_id",
-          as: "request",
-        }
-      },
-    ]);
-  }
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user",
+                },
+            },
+            {
+                $lookup: {
+                    from: "hospitals",
+                    localField: "hospitalId",
+                    foreignField: "_id",
+                    as: "hospital",
+                },
+            },
+            {
+                $lookup: {
+                    from: "requests",
+                    localField: "requestId",
+                    foreignField: "_id",
+                    as: "request",
+                }
+            },
+        ]);
+    }
+
     async updateAppointmentStatus(
         id: string,
         newStatus: string
@@ -209,22 +212,22 @@ export class AppointmentService {
     async getAppointmentHospital(id: string): Promise<Appointment[]> {
         const hospital = await this.hospitalModel.findById(id)
         return this.appointmentModel.aggregate([
-          {
-            $match: {
-              hospitalId: hospital._id
+            {
+                $match: {
+                    hospitalId: hospital._id
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: "$user"
             }
-          },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'userId',
-              foreignField: '_id',
-              as: 'user'
-            }
-          },
-          {
-            $unwind: "$user"
-          }
         ])
     }
 
@@ -233,12 +236,6 @@ export class AppointmentService {
         id: string,
         newStatus: string
     ) {
-
-
-        const client = new MongoClient(process.env.DB_URI, {
-            dbName: "BloodBuddy"
-        });
-
         const session = await this.connection.startSession();
         // const session = client.startSession();
         let isError = false
@@ -250,36 +247,40 @@ export class AppointmentService {
             appointment.status = newStatus;
             await appointment.save({session})
 
-            // rilis point ke tabel user
-            let user = await this.userModel.findOne({_id: appointment.userId});
-            user.points = user.points + 50;
-            await user.save({session});
+            if (newStatus === 'completed') {
+                // rilis point ke tabel user
+                let user = await this.userModel.findOne({_id: appointment.userId});
+                user.points = user.points + 50;
+                await user.save({session});
 
-            // kurangin balance & balanceLocked di tabel hospital
-            let hospital: any = await this.hospitalModel.findOne({_id: appointment.hospitalId});
-            hospital.balance = hospital.balance - 50000;
-            hospital.balanceLocked = hospital.balanceLocked - 50000;
+                // kurangin balance & balanceLocked di tabel hospital
+                let hospital: any = await this.hospitalModel.findOne({_id: appointment.hospitalId});
+                hospital.balance = hospital.balance - 50000;
+                hospital.balanceLocked = hospital.balanceLocked - 50000;
 
-            // tambah stok di tabel hospital
-            hospital.bloodStock[user.bloodType] = hospital.bloodStock[user.bloodType] + 1;
-            await hospital.save({session});
+                // tambah stok di tabel hospital
+                hospital.bloodStock[user.bloodType] = hospital.bloodStock[user.bloodType] + 1;
+                await hospital.save({session});
 
-            // update collected blood di tabel request
-            let request: any = await this.requestModel.findOne({_id: appointment.requestId});
-            request.bloodType[user.bloodType].collected = request.bloodType[user.bloodType].collected + 1;
-            request.totalCollected = request.totalCollected + 1;
-            await request.save({session});
+                // update collected blood di tabel request
+                let request: any = await this.requestModel.findOne({_id: appointment.requestId});
+                request.bloodType[user.bloodType].collected = request.bloodType[user.bloodType].collected + 1;
+                request.totalCollected = request.totalCollected + 1;
+                await request.save({session});
+            } else {
+
+            }
+
 
             await session.commitTransaction();
         } catch (error) {
             await session.abortTransaction();
-            console.log(error)
 
             isError = true
         } finally {
             await session.endSession();
 
-            if(isError){
+            if (isError) {
                 return 'error'
             }
             return 'success'
