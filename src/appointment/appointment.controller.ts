@@ -42,6 +42,13 @@ export class AppointmentController {
     return await this.appointmentService.historyAppointment(req.user);
   }
 
+  @Get("/hospital")
+  @UseGuards(AuthGuard('jwt-hospital'))
+  async getAppointmentHospital(@Req() req): Promise<Appointment[]> {
+    const hospital = await this.appointmentService.getAppointmentHospital(req.user);
+    return hospital
+  }
+
   @Patch(':id/cancel')
   @UseGuards(AuthGuard())
   async cancelAppointment(
@@ -66,4 +73,5 @@ export class AppointmentController {
   async getAppointmentById(@Param("id") id: string) {
     return await this.appointmentService.getAppointmentById(id);
   }
+
 }
