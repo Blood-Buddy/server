@@ -15,7 +15,9 @@ export class AppointmentService {
         @InjectModel(Appointment.name)
         private appointmentModel: Model<Appointment>,
         @InjectModel(Request.name)
-        private requestModel: Model<Request>
+        private requestModel: Model<Request>,
+        @InjectModel(Hospital.name)
+        private hospitalModel: Model<Hospital>
     ) {
     }
 
@@ -198,5 +200,27 @@ export class AppointmentService {
             }
         ]);
         return appointment.length > 0 ? appointment[0] : []
+    }
+
+    async getAppointmentHospital(id: string): Promise<Appointment[]> {
+        const hospital = await this.hospitalModel.findById(id)
+        return this.appointmentModel.aggregate([
+          {
+            $match: {
+              hospitalId: hospital._id
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'user'
+            }
+          },
+          {
+            $unwind: "$user"
+          }
+        ])
     }
 }
