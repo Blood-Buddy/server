@@ -176,6 +176,7 @@ export class RequestService {
             "description": "Invoice Deposit Saldo",
             "currency": "IDR",
             "reminderTime": 1,
+            "successRedirectUrl": "https://google.com",
         }
 
         data = await xenditInvoiceClient.createInvoice({
