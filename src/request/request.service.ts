@@ -6,7 +6,9 @@ import ObjectId = Types.ObjectId;
 import {VoucherTransaction} from "../voucher/schemas/vouchertransaction.schema";
 import mongoose from "mongoose";
 import {Hospital} from "../hospital/schemas/hospital.schema";
-import { User } from 'src/auth/schemas/user.schema';
+import {User} from 'src/auth/schemas/user.schema';
+
+const {Invoice: InvoiceClient} = require("xendit-node");
 
 @Injectable()
 export class RequestService {
@@ -26,7 +28,7 @@ export class RequestService {
                 $match: {
                     _id: new Types.ObjectId(id)
                 }
-            },{
+            }, {
                 $lookup: {
                     from: 'hospitals',
                     localField: 'hospitalId',
@@ -61,8 +63,8 @@ export class RequestService {
             {
                 $group: {
                     _id: '$_id',
-                    request: { $first: '$$ROOT' },
-                    appointments: { $push: '$appointment' },
+                    request: {$first: '$$ROOT'},
+                    appointments: {$push: '$appointment'},
                 }
             }
         ]);
@@ -106,7 +108,7 @@ export class RequestService {
         let price = body.totalRequest * 50000
         let availableBalance = hospitalModel.balance - hospitalModel.balanceLocked
 
-        if(availableBalance < price){
+        if (availableBalance < price) {
             throw new NotFoundException("Balance not enough");
         }
 
@@ -137,8 +139,6 @@ export class RequestService {
         hospitalModel.balanceLocked = hospitalModel.balanceLocked + price;
         hospitalModel.save()
 
-
-
         // create table requestnya
         let requestBlood = await this.requestModel.create({
             title: body.title,
@@ -162,5 +162,46 @@ export class RequestService {
                 }
             }
         ])
+    }
+    
+    async createInvoice(body, hospital) {
+        const xenditInvoiceClient = new InvoiceClient({secretKey: process.env.API_KEY})
+
+        let data: any = {
+            "amount": body.amount,
+            "invoiceDuration": 172800,
+            "externalId": `${hospital._id.toString()}`,
+            "description": "Invoice Deposit Saldo",
+            "currency": "IDR",
+            "reminderTime": 1,
+        }
+
+        data = await xenditInvoiceClient.createInvoice({
+            data
+        })
+
+        let result = {
+            invoiceId: data.id,
+            invoiceUrl: data.invoiceUrl
+        }
+
+        return result
+    }
+
+    async createDepositInvoice(body) {
+
+        if(ObjectId.isValid(body.external_id) === false) {
+            return "Invalid Hospital ID";
+        }
+
+        let balanceHospital = await this.hospitalModel.findOneAndUpdate({
+            _id: new ObjectId(body.external_id)
+        },{
+            $inc: {
+                balance: body.paid_amount
+            }
+        });
+
+        return balanceHospital
     }
 }

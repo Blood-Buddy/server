@@ -59,4 +59,11 @@ export class AppointmentController {
       return { success: false, error: 'Failed to cancel appointment' };
     }
   }
+
+
+  @Get(":id")
+  @UseGuards(AuthGuard('jwt-hospital'))
+  async getAppointmentById(@Param("id") id: string) {
+    return await this.appointmentService.getAppointmentById(id);
+  }
 }

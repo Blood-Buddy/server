@@ -33,10 +33,22 @@ export class RequestController {
     return await this.requestService.getRequestById(id);
   }
 
-  @Post()
-  @UseGuards(AuthGuard("jwt-hospital"))
-  async postRequest(@Body() body, @Req() req) {
-    return await this.requestService.postRequest(body, req.user);
-  }
 
+    @Post()
+    @UseGuards(AuthGuard('jwt-hospital'))
+    async postRequest(@Body() body, @Req() req) {
+        return await this.requestService.postRequest(body, req.user);
+    }
+
+
+    @Post('/invoice')
+    @UseGuards(AuthGuard('jwt-hospital'))
+    async createInvoice(@Body() body, @Req() req) {
+        return await this.requestService.createInvoice(body, req.user);
+    }
+
+    @Post('/callback/invoice')
+    async createDepositInvoice(@Body() body, @Req() req) {
+        return await this.requestService.createDepositInvoice(body);
+    }
 }
