@@ -16,7 +16,7 @@ export class RegisterUserDto {
   
   @IsNotEmpty()
   @IsString()
-  readonly phone: string;
+  readonly phoneNumber: string;
   
   @IsNotEmpty()
   @IsString()

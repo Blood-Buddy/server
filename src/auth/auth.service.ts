@@ -21,13 +21,13 @@ export class AuthService {
 
   async create(registerDto: RegisterUserDto) {
     try {
-      const { name, nik, phone, address, province, email, bloodType, password } =
+      const { name, nik, phoneNumber, address, province, email, bloodType, password } =
         registerDto;
       const hashPassword = bcrypt.hashSync(password, 10);
       const user = await this.userModel.create({
         name,
         nik,
-        phone,
+        phoneNumber,
         address,
         province,
         email,

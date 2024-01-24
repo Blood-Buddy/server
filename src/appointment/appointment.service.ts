@@ -148,7 +148,7 @@ export class AppointmentService {
                     "User.name": 1,
                     "Hospital.name": 1,
                     "Hospital.address": 1,
-                    "Hospital.phone": 1,
+                    "Hospital.phoneNumber": 1,
                     status: 1,
                 },
             },
