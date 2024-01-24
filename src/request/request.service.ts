@@ -84,12 +84,11 @@ export class RequestService {
               {
                 $sort: {
                   isUserBloodTypeMatch: -1,
-                  // Add more sorting criteria if needed
                 },
               },
               {
                 $project: {
-                  isUserBloodTypeMatch: 0, // Exclude the temporary field from the final result
+                  isUserBloodTypeMatch: 0,
                 },
               },
               {
@@ -100,6 +99,11 @@ export class RequestService {
                   as: 'hospital',
                 },
               },
+              {
+                $match: {
+                    "hospital.province" : user.province
+                }
+              }
         ]);
     }
 

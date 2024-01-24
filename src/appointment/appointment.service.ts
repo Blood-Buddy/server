@@ -27,6 +27,7 @@ export class AppointmentService {
         const request = await this.requestModel.findById(requestId);
         const data: Partial<Appointment> = {
             ...appointment,
+            _id: new Types.ObjectId(),
             requestId,
             hospitalId: request.hospitalId,
             userId: new Types.ObjectId(user._id),
@@ -155,7 +156,7 @@ export class AppointmentService {
         ]);
     }
 
-    async getAppointmentById(id) {
+    async getAppointmentById(id: string) {
         let appointment = await this.appointmentModel.aggregate([
             {
                 '$match': {
