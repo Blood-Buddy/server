@@ -31,7 +31,27 @@ export class VoucherService {
     }
 
     async getMyVouchers(user: any) {
-        const myVouchers = await this.voucherTransactionModel.find({userId: user._id});
+        const myVouchers = await this.voucherTransactionModel.aggregate([
+            {
+                '$match': {
+                    'userId': new ObjectId(user._id)
+                }
+            }, {
+                '$lookup': {
+                    'from': 'vouchers',
+                    'localField': 'voucherId',
+                    'foreignField': '_id',
+                    'as': 'voucher'
+                }
+            }, {
+                '$unwind': {
+                    'path': '$voucher'
+                }
+            }
+        ]);
+
+
+
         if (!myVouchers) {
             throw new NotFoundException("My Vouchers not Found");
         }
@@ -40,6 +60,16 @@ export class VoucherService {
 
 
     async createClaimVoucher(voucherId: string, user: any) {
+        let randomString = '';
+        let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let charactersLength = characters.length;
+
+        for (let i = 0; i < 6; i++) {
+            randomString += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+
+
+
         const voucher = await this.voucherModel.findOne({_id: new ObjectId(voucherId)});
 
         if(user.points < voucher.pointRequired){
@@ -52,7 +82,7 @@ export class VoucherService {
         const voucherTransaction = await this.voucherTransactionModel.create({
             voucherId: new ObjectId(voucherId),
             userId: new ObjectId(user._id),
-            code: "12345678"
+            code: randomString
         });
 
         return voucherTransaction;

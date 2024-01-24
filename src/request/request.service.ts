@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Request} from './schema/request.schema';
 import {Model, Types} from 'mongoose';
@@ -74,34 +74,34 @@ export class RequestService {
     async getRequests(id: string): Promise<Request[]> {
         const user = (await this.userModel.findById(id)).province
         return await this.requestModel.aggregate([
-              {
+            {
                 $lookup: {
-                  from: 'hospitals',
-                  localField: 'hospitalId',
-                  foreignField: '_id',
-                  as: 'hospital',
+                    from: 'hospitals',
+                    localField: 'hospitalId',
+                    foreignField: '_id',
+                    as: 'hospital',
                 },
-              },
-              {
+            },
+            {
                 $unwind: '$hospital',
-              },
-              {
-                  $addFields: {
+            },
+            {
+                $addFields: {
                     isProvince: {
                         $eq: ["$hospital.province", user]
                     }
-                  }
-              }, 
-              {
+                }
+            },
+            {
                 $sort: {
                     isProvince: -1,
                 }
-              },
-              {
+            },
+            {
                 $project: {
                     isProvince: 0
                 }
-              }
+            }
         ]);
     }
 
@@ -111,7 +111,7 @@ export class RequestService {
         let availableBalance = hospitalModel.balance - hospitalModel.balanceLocked
 
         if (availableBalance < price) {
-            throw new NotFoundException("Balance not enough");
+            throw new BadRequestException("Balance not enough");
         }
 
         let bloodType = {
@@ -165,7 +165,7 @@ export class RequestService {
             }
         ])
     }
-    
+
     async createInvoice(body, hospital) {
         const xenditInvoiceClient = new InvoiceClient({secretKey: process.env.API_KEY})
 
@@ -176,7 +176,7 @@ export class RequestService {
             "description": "Invoice Deposit Saldo",
             "currency": "IDR",
             "reminderTime": 1,
-            "successRedirectUrl": "https://google.com",
+            "successRedirectUrl": "https://blood-buddy.vercel.app/",
         }
 
         data = await xenditInvoiceClient.createInvoice({
@@ -193,13 +193,13 @@ export class RequestService {
 
     async createDepositInvoice(body) {
 
-        if(ObjectId.isValid(body.external_id) === false) {
+        if (ObjectId.isValid(body.external_id) === false) {
             return "Invalid Hospital ID";
         }
 
         let balanceHospital = await this.hospitalModel.findOneAndUpdate({
             _id: new ObjectId(body.external_id)
-        },{
+        }, {
             $inc: {
                 balance: body.paid_amount
             }
