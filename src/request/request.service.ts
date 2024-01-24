@@ -71,16 +71,35 @@ export class RequestService {
         return request.length > 0 ? request[0].request : []
     }
 
-    async getRequests(): Promise<Request[]> {
+    async getRequests(id: string): Promise<Request[]> {
+        const user = await this.userModel.findById(id);
         return await this.requestModel.aggregate([
             {
+                $addFields: {
+                  isUserBloodTypeMatch: {
+                    $eq: ['$bloodType', user.bloodType],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  isUserBloodTypeMatch: -1,
+                  // Add more sorting criteria if needed
+                },
+              },
+              {
+                $project: {
+                  isUserBloodTypeMatch: 0, // Exclude the temporary field from the final result
+                },
+              },
+              {
                 $lookup: {
-                    from: 'hospitals',
-                    localField: 'hospitalId',
-                    foreignField: '_id',
-                    as: 'hospital'
-                }
-            }
+                  from: 'hospitals',
+                  localField: 'hospitalId',
+                  foreignField: '_id',
+                  as: 'hospital',
+                },
+              },
         ]);
     }
 
@@ -135,6 +154,16 @@ export class RequestService {
         return requestBlood
     }
 
+    async getRequestHospitals(hospital: Hospital): Promise<Request[]> {
+        return await this.requestModel.aggregate([
+            {
+                $match: {
+                    hospitalId: new Types.ObjectId(hospital._id)
+                }
+            }
+        ])
+    }
+    
     async createInvoice(body, hospital) {
         const xenditInvoiceClient = new InvoiceClient({secretKey: process.env.API_KEY})
 

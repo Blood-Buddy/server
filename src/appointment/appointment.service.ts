@@ -90,7 +90,6 @@ export class AppointmentService {
       },
     ]);
   }
-
     async updateAppointmentStatus(
         id: string,
         newStatus: string
@@ -145,9 +144,11 @@ export class AppointmentService {
             {
                 $project: {
                     session: 1,
+                    updatedAt: 1,
                     "User.name": 1,
                     "Hospital.name": 1,
                     "Hospital.address": 1,
+                    "Hospital.phone": 1,
                     status: 1,
                 },
             },
