@@ -95,6 +95,11 @@ export class AppointmentService {
           as: "request",
         }
       },
+      {
+        $sort: {
+          date: 1
+        }
+      }
     ]);
   }
     async updateAppointmentStatus(
@@ -159,6 +164,11 @@ export class AppointmentService {
                     status: 1,
                 },
             },
+            {
+              $sort: {
+                date: 1
+              }
+            }
         ]);
     }
 
