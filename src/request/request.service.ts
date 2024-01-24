@@ -72,25 +72,8 @@ export class RequestService {
     }
 
     async getRequests(id: string): Promise<Request[]> {
-        const user = await this.userModel.findById(id);
+        const user = (await this.userModel.findById(id)).province
         return await this.requestModel.aggregate([
-            {
-                $addFields: {
-                  isUserBloodTypeMatch: {
-                    $eq: ['$bloodType', user.bloodType],
-                  },
-                },
-              },
-              {
-                $sort: {
-                  isUserBloodTypeMatch: -1,
-                },
-              },
-              {
-                $project: {
-                  isUserBloodTypeMatch: 0,
-                },
-              },
               {
                 $lookup: {
                   from: 'hospitals',
@@ -100,8 +83,23 @@ export class RequestService {
                 },
               },
               {
-                $match: {
-                    "hospital.province" : user.province
+                $unwind: '$hospital',
+              },
+              {
+                  $addFields: {
+                    isProvince: {
+                        $eq: ["$hospital.province", user]
+                    }
+                  }
+              }, 
+              {
+                $sort: {
+                    isProvince: -1,
+                }
+              },
+              {
+                $project: {
+                    isProvince: 0
                 }
               }
         ]);
