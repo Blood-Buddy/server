@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {BadRequestException, Injectable, Logger, NotFoundException} from "@nestjs/common";
 import {
   InjectConnection,
   InjectModel,
@@ -33,8 +33,15 @@ export class AppointmentService {
     appointment: createAppointmentDto,
     user: User
   ): Promise<{ appointment: Appointment; qrCode: string }> {
+
     const requestId = new Types.ObjectId(appointment.requestId);
     const request = await this.requestModel.findById(requestId);
+
+    if((new Date(appointment.date)).toLocaleDateString() != request.date.toLocaleDateString()) {
+      throw new BadRequestException('Date Tidak Sama Dengan Tanggal Request')
+    }
+
+
     const data: Partial<Appointment> = {
       ...appointment,
       _id: new Types.ObjectId(),
