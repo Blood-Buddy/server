@@ -24,8 +24,8 @@ export class AppointmentController {
     return this.appointmentService.createAppointment(appointmentData, req.user);
   }
 
-  @Patch(':id/update-status')
-  @UseGuards(AuthGuard())
+  @Patch(':id/completed')
+  @UseGuards(AuthGuard("jwt-hospital"))
   async updateAppointmentStatus(
     @Param('id') id: string,
     @Body('status') newStatus: string,
@@ -40,5 +40,23 @@ export class AppointmentController {
   @UseGuards(AuthGuard())
   async historyAppointment(@Req() req): Promise<Appointment[]> {
     return await this.appointmentService.historyAppointment(req.user);
+  }
+
+  @Patch(':id/cancel')
+  @UseGuards(AuthGuard())
+  async cancelAppointment(
+    @Param('id') id: string,
+    @Body('newStatus') newStatus: string,
+  ) {
+    try {
+      const updatedAppointment = await this.appointmentService.updateAppointmentStatus(
+        id,
+        newStatus,
+      );
+
+      return { success: true, appointment: updatedAppointment };
+    } catch (error) {
+      return { success: false, error: 'Failed to cancel appointment' };
+    }
   }
 }

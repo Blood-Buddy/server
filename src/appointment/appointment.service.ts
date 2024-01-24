@@ -95,6 +95,9 @@ export class AppointmentService {
     newStatus: string
   ): Promise<Appointment> {
     const appointment = await this.appointmentModel.findById(id);
+    if(!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
     appointment.status = newStatus;
     return appointment.save();
   }
