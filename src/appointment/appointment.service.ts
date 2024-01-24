@@ -41,10 +41,18 @@ export class AppointmentService {
       requestId,
       hospitalId: request.hospitalId,
       userId: new Types.ObjectId(user._id),
+      name: user.name,
+      bloodType: user.bloodType,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
+      province: user.province,
+      nik: user.nik,
     };
     const qrCodeString = await this.generateQRCode(data as Appointment);
+    const {qrCode, ...appointmentData} = data as Appointment
     const res = await this.appointmentModel.create({
-      ...data,
+      ...appointmentData,
       qrCode: qrCodeString,
     });
     return { appointment: res, qrCode: qrCodeString };
@@ -54,6 +62,7 @@ export class AppointmentService {
     const qrData = JSON.stringify({
       appointment,
     });
+    console.log(qrData)
 
     const qrCodeString = await qrCode.toDataURL(qrData);
 
