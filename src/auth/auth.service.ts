@@ -90,7 +90,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException("User not Found");
     }
-    return users;
+    return users[0];
   }
 
   async editProfile(user: User, updatedUser: EditUserDto): Promise<User> {
